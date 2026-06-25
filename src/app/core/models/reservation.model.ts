@@ -1,4 +1,4 @@
-export type ReservationStatus = 'PendientePago' | 'Confirmada' | 'Cancelada';
+export type ReservationStatus = 'PendingPayment' | 'Confirmed' | 'Cancelled';
 
 export interface Reservation {
   id: string;

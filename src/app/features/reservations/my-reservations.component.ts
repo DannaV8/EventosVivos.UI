@@ -60,11 +60,17 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
                   <td class="px-5 py-4">
                     <app-badge [label]="r.status" />
                   </td>
-                  <td class="px-5 py-4 font-mono text-slate-400">
-                    {{ r.reservationCode ?? '—' }}
+                  <td class="px-5 py-4">
+                    @if (r.reservationCode) {
+                      <span class="inline-flex items-center gap-1.5 rounded-md bg-emerald-950 px-2.5 py-1 font-mono text-xs font-semibold text-emerald-400 ring-1 ring-emerald-800">
+                        🎟️ {{ r.reservationCode }}
+                      </span>
+                    } @else {
+                      <span class="text-slate-600">—</span>
+                    }
                   </td>
                   <td class="px-5 py-4">
-                    @if (r.status === 'Confirmada') {
+                    @if (r.status === 'Confirmed') {
                       <button
                         (click)="cancel(r)"
                         [disabled]="cancelling() === r.id"

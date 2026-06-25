@@ -65,9 +65,9 @@ type Tab = 'reservations' | 'events' | 'create';
             class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
           >
             <option value="">Todos los estados</option>
-            <option value="PendientePago">Pendiente de pago</option>
-            <option value="Confirmada">Confirmada</option>
-            <option value="Cancelada">Cancelada</option>
+            <option value="PendingPayment">Pendiente de pago</option>
+            <option value="Confirmed">Confirmada</option>
+            <option value="Cancelled">Cancelada</option>
           </select>
         </div>
 
@@ -96,7 +96,7 @@ type Tab = 'reservations' | 'events' | 'create';
                     <td class="px-4 py-3 text-slate-400">{{ r.createdAt | date:'dd/MM/yy HH:mm' }}</td>
                     <td class="px-4 py-3">
                       <div class="flex gap-2">
-                        @if (r.status === 'PendientePago') {
+                        @if (r.status === 'PendingPayment') {
                           <button
                             (click)="confirm(r)"
                             [disabled]="processing() === r.id"
@@ -105,7 +105,7 @@ type Tab = 'reservations' | 'events' | 'create';
                             {{ processing() === r.id ? '...' : 'Confirmar' }}
                           </button>
                         }
-                        @if (r.status !== 'Cancelada') {
+                        @if (r.status === 'Confirmed') {
                           <button
                             (click)="cancel(r)"
                             [disabled]="processing() === r.id"
@@ -203,9 +203,9 @@ type Tab = 'reservations' | 'events' | 'create';
                 <label class="text-sm font-medium text-slate-300">Tipo</label>
                 <select [(ngModel)]="newEvent.type" name="type"
                   class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white focus:border-indigo-500 focus:outline-none">
-                  <option value="Conferencia">Conferencia</option>
-                  <option value="Taller">Taller</option>
-                  <option value="Concierto">Concierto</option>
+                  <option value="Conference">Conferencia</option>
+                  <option value="Workshop">Taller</option>
+                  <option value="Concert">Concierto</option>
                 </select>
               </div>
               <div class="space-y-1">
@@ -291,9 +291,9 @@ export class AdminLayoutComponent implements OnInit {
 
   readonly metrics = computed(() => {
     const rs = this.reservations();
-    const confirmed = rs.filter((r) => r.status === 'Confirmada').length;
-    const pending = rs.filter((r) => r.status === 'PendientePago').length;
-    const cancelled = rs.filter((r) => r.status === 'Cancelada').length;
+    const confirmed = rs.filter((r) => r.status === 'Confirmed').length;
+    const pending = rs.filter((r) => r.status === 'PendingPayment').length;
+    const cancelled = rs.filter((r) => r.status === 'Cancelled').length;
     return [
       { label: 'Confirmadas', value: confirmed },
       { label: 'Pendientes pago', value: pending },
@@ -391,7 +391,7 @@ export class AdminLayoutComponent implements OnInit {
 
   private emptyEvent() {
     return {
-      title: '', description: '', type: 'Conferencia',
+      title: '', description: '', type: 'Conference',
       venueId: 1, maxCapacity: 100, ticketPrice: 0,
       startDateTime: '', endDateTime: ''
     };
