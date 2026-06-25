@@ -1,0 +1,26 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { Event, EventFilters } from '../../core/models/event.model';
+
+@Injectable({ providedIn: 'root' })
+export class EventService {
+  private readonly http = inject(HttpClient);
+  private readonly base = environment.apiBase;
+
+  availableTickets(event: Event): number {
+    return event.maxCapacity - (event.confirmedTickets ?? 0) - (event.lostTickets ?? 0);
+  }
+
+  list(filters: EventFilters = {}) {
+    let params = new HttpParams();
+    if (filters.title) params = params.set('title', filters.title);
+    if (filters.type) params = params.set('type', filters.type);
+    if (filters.venueId) params = params.set('venueId', String(filters.venueId));
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.startDate) params = params.set('startDate', filters.startDate);
+    if (filters.endDate) params = params.set('endDate', filters.endDate);
+
+    return this.http.get<Event[]>(`${this.base}/events`, { params });
+  }
+}
