@@ -1,59 +1,50 @@
-# EventosVivos
+# EventosVivos — UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.4.
+Frontend del sistema de reservas de eventos culturales **EventosVivos**.
+Consume la API REST (proyecto aparte) y ofrece la experiencia para usuarios y administradores.
 
-## Development server
+**Stack:** Angular 22 (standalone + signals) · Tailwind CSS · Vitest
 
-To start a local development server, run:
+## Qué hace
 
-```bash
-ng serve
-```
+- **Público:** ver eventos, registro / login (JWT).
+- **Usuario:** reservar entradas, ver y cancelar sus reservas.
+- **Admin** (`/admin`): confirmar reservas, crear eventos y ver reportes de ocupación.
+  Todas las tablas tienen búsqueda, filtros, paginación y orden por columna.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Requisitos
 
-## Code scaffolding
+- Node 20+ y npm
+- La **API corriendo** en `https://localhost:62323` (ver el repo de la API).
+  La URL se configura en `src/environments/environment.ts` (`apiBase`).
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Cómo levantar el proyecto
 
 ```bash
-ng generate --help
+npm install      # instalar dependencias (solo la primera vez)
+npm start        # servidor de desarrollo -> http://localhost:4200
 ```
 
-## Building
+La app recarga sola al guardar cambios.
 
-To build the project run:
+## Otros comandos
 
 ```bash
-ng build
+npm test         # tests unitarios (Vitest)
+npm run build    # build de producción -> dist/
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Estructura
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+```
+src/app/
+├── core/        # servicios, guards, modelos, helpers (auth, http, sort)
+├── shared/      # componentes reutilizables (badge, spinner, toast, paginator)
+└── features/    # páginas por dominio
+    ├── auth/         # login / register
+    ├── events/       # listado de eventos
+    ├── reservations/ # reservar + mis reservas
+    └── admin/        # panel admin con tabs
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Rutas protegidas por `authGuard` (usuario logueado) y `adminGuard` (rol admin).
