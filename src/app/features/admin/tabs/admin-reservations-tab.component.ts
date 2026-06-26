@@ -5,6 +5,7 @@ import { ReservationService } from '../../reservations/reservation.service';
 import { AdminService } from '../admin.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { apiErrorMessage } from '../../../core/http-error';
+import { sortBy, SortDir } from '../../../core/sort';
 import { Reservation } from '../../../core/models/reservation.model';
 import { BadgeComponent } from '../../../shared/ui/badge.component';
 import { SpinnerComponent } from '../../../shared/ui/spinner.component';
@@ -51,11 +52,19 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">
-              <th class="px-4 py-3 font-medium">Event</th>
-              <th class="px-4 py-3 font-medium">Qty</th>
-              <th class="px-4 py-3 font-medium">Status</th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('eventTitle')">
+                Event <span class="ml-1">{{ sortIndicator('eventTitle') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('quantity')">
+                Qty <span class="ml-1">{{ sortIndicator('quantity') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('status')">
+                Status <span class="ml-1">{{ sortIndicator('status') }}</span>
+              </th>
               <th class="px-4 py-3 font-medium">Code</th>
-              <th class="px-4 py-3 font-medium">Date</th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('creationDate')">
+                Date <span class="ml-1">{{ sortIndicator('creationDate') }}</span>
+              </th>
               <th class="px-4 py-3 font-medium">Action</th>
             </tr>
           </thead>
@@ -113,6 +122,9 @@ export class AdminReservationsTabComponent implements OnInit {
   readonly search = signal('');
   readonly statusFilter = signal('');
 
+  readonly sortCol = signal<keyof Reservation>('creationDate');
+  readonly sortDir = signal<SortDir>('desc');
+
   private readonly perPage = 8;
   readonly page = signal(0);
 
@@ -138,12 +150,15 @@ export class AdminReservationsTabComponent implements OnInit {
     ];
   });
 
+  readonly sorted = computed(() =>
+    sortBy(this.filtered(), this.sortCol(), this.sortDir()));
+
   readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.filtered().length / this.perPage)));
 
   readonly paged = computed(() => {
     const start = this.page() * this.perPage;
-    return this.filtered().slice(start, start + this.perPage);
+    return this.sorted().slice(start, start + this.perPage);
   });
 
   ngOnInit() {
@@ -167,6 +182,21 @@ export class AdminReservationsTabComponent implements OnInit {
         this.processing.set(null);
       },
     });
+  }
+
+  setSort(col: keyof Reservation) {
+    if (this.sortCol() === col) {
+      this.sortDir.update((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      this.sortCol.set(col);
+      this.sortDir.set('asc');
+    }
+    this.page.set(0);
+  }
+
+  sortIndicator(col: keyof Reservation): string {
+    if (this.sortCol() !== col) return '↕';
+    return this.sortDir() === 'asc' ? '↑' : '↓';
   }
 
   cancelReservation(r: Reservation) {

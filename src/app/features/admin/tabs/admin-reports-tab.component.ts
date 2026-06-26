@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { EventService } from '../../events/event.service';
 import { EventOccupancy } from '../../../core/models/event.model';
+import { sortBy, SortDir } from '../../../core/sort';
 import { BadgeComponent } from '../../../shared/ui/badge.component';
 import { SpinnerComponent } from '../../../shared/ui/spinner.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator.component';
@@ -39,12 +40,24 @@ import { forkJoin } from 'rxjs';
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">
-              <th class="px-4 py-3 font-medium">Event</th>
-              <th class="px-4 py-3 font-medium">Occupancy</th>
-              <th class="px-4 py-3 font-medium">Sold</th>
-              <th class="px-4 py-3 font-medium">Available</th>
-              <th class="px-4 py-3 font-medium">Revenue</th>
-              <th class="px-4 py-3 font-medium">Status</th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('title')">
+                Event <span class="ml-1">{{ sortIndicator('title') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('occupancyPercentage')">
+                Occupancy <span class="ml-1">{{ sortIndicator('occupancyPercentage') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('soldTickets')">
+                Sold <span class="ml-1">{{ sortIndicator('soldTickets') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('availableTickets')">
+                Available <span class="ml-1">{{ sortIndicator('availableTickets') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('totalRevenue')">
+                Revenue <span class="ml-1">{{ sortIndicator('totalRevenue') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('status')">
+                Status <span class="ml-1">{{ sortIndicator('status') }}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -78,8 +91,13 @@ export class AdminReportsTabComponent implements OnInit {
   readonly reports = signal<EventOccupancy[]>([]);
   readonly loading = signal(true);
 
+  readonly sortCol = signal<keyof EventOccupancy>('occupancyPercentage');
+  readonly sortDir = signal<SortDir>('desc');
+
   private readonly perPage = 8;
   readonly page = signal(0);
+
+  readonly sorted = computed(() => sortBy(this.reports(), this.sortCol(), this.sortDir()));
 
   readonly summary = computed(() => {
     const rs = this.reports();
@@ -97,7 +115,7 @@ export class AdminReportsTabComponent implements OnInit {
 
   readonly paged = computed(() => {
     const start = this.page() * this.perPage;
-    return this.reports().slice(start, start + this.perPage);
+    return this.sorted().slice(start, start + this.perPage);
   });
 
   ngOnInit() {
@@ -116,6 +134,21 @@ export class AdminReportsTabComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  setSort(col: keyof EventOccupancy) {
+    if (this.sortCol() === col) {
+      this.sortDir.update((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      this.sortCol.set(col);
+      this.sortDir.set('asc');
+    }
+    this.page.set(0);
+  }
+
+  sortIndicator(col: keyof EventOccupancy): string {
+    if (this.sortCol() !== col) return '↕';
+    return this.sortDir() === 'asc' ? '↑' : '↓';
   }
 
   barColor(pct: number): string {

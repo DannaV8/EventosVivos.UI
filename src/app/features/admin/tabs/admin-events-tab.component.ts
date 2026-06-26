@@ -2,6 +2,7 @@ import { Component, OnInit, inject, input, signal, computed, effect, output } fr
 import { DatePipe } from '@angular/common';
 import { EventService } from '../../events/event.service';
 import { Event } from '../../../core/models/event.model';
+import { sortBy, SortDir } from '../../../core/sort';
 import { BadgeComponent } from '../../../shared/ui/badge.component';
 import { SpinnerComponent } from '../../../shared/ui/spinner.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator.component';
@@ -24,12 +25,24 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">
-              <th class="px-4 py-3 font-medium">Title</th>
-              <th class="px-4 py-3 font-medium">Venue</th>
-              <th class="px-4 py-3 font-medium">Start</th>
-              <th class="px-4 py-3 font-medium">Price</th>
-              <th class="px-4 py-3 font-medium">Capacity</th>
-              <th class="px-4 py-3 font-medium">Status</th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('title')">
+                Title <span class="ml-1">{{ sortIndicator('title') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('venueName')">
+                Venue <span class="ml-1">{{ sortIndicator('venueName') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('startDateTime')">
+                Start <span class="ml-1">{{ sortIndicator('startDateTime') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('ticketPrice')">
+                Price <span class="ml-1">{{ sortIndicator('ticketPrice') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('maxCapacity')">
+                Capacity <span class="ml-1">{{ sortIndicator('maxCapacity') }}</span>
+              </th>
+              <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('status')">
+                Status <span class="ml-1">{{ sortIndicator('status') }}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -60,15 +73,20 @@ export class AdminEventsTabComponent implements OnInit {
   readonly events = signal<Event[]>([]);
   readonly loading = signal(true);
 
+  readonly sortCol = signal<keyof Event>('startDateTime');
+  readonly sortDir = signal<SortDir>('asc');
+
   private readonly perPage = 8;
   readonly page = signal(0);
+
+  readonly sorted = computed(() => sortBy(this.events(), this.sortCol(), this.sortDir()));
 
   readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.events().length / this.perPage)));
 
   readonly paged = computed(() => {
     const start = this.page() * this.perPage;
-    return this.events().slice(start, start + this.perPage);
+    return this.sorted().slice(start, start + this.perPage);
   });
 
   constructor() {
@@ -79,7 +97,22 @@ export class AdminEventsTabComponent implements OnInit {
   }
 
   ngOnInit() {
-    // La carga inicial ya se dispara desde el effect al leer refreshKey().
+    // Initial load is triggered by effect() reading refreshKey().
+  }
+
+  setSort(col: keyof Event) {
+    if (this.sortCol() === col) {
+      this.sortDir.update((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      this.sortCol.set(col);
+      this.sortDir.set('asc');
+    }
+    this.page.set(0);
+  }
+
+  sortIndicator(col: keyof Event): string {
+    if (this.sortCol() !== col) return '↕';
+    return this.sortDir() === 'asc' ? '↑' : '↓';
   }
 
   load() {
