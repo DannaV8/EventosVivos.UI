@@ -1,5 +1,16 @@
 # EventosVivos — UI
 
+URL: https://eventosvivos-ui.pages.dev
+
+ADMIN
+  admin@eventosvivos.com
+  12345678
+  
+USER
+  user@user.com
+  12345678
+
+
 Frontend del sistema de reservas de eventos culturales **EventosVivos**.
 Consume la API REST (proyecto aparte) y ofrece la experiencia para usuarios y administradores.
 
