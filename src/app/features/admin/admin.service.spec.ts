@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AdminService, CreateEventRequest } from './admin.service';
 
-const BASE = 'https://localhost:62323/api';
+const BASE = 'https://eventosvivos-api-q5jw.onrender.com/api';
 
 describe('AdminService', () => {
   let service: AdminService;

@@ -49,7 +49,7 @@ describe('AuthService', () => {
   it('login stores token and updates signals', () => {
     service.login('user@test.com', '12345678').subscribe();
 
-    const req = http.expectOne('https://localhost:62323/api/auth/login');
+    const req = http.expectOne('https://eventosvivos-api-q5jw.onrender.com/api/auth/login');
     expect(req.request.method).toBe('POST');
     req.flush({ token: TOKEN_USER });
 
@@ -64,7 +64,7 @@ describe('AuthService', () => {
   it('login with admin token: isAdmin() is true', () => {
     service.login('admin@test.com', '12345678').subscribe();
 
-    http.expectOne('https://localhost:62323/api/auth/login').flush({ token: TOKEN_ADMIN });
+    http.expectOne('https://eventosvivos-api-q5jw.onrender.com/api/auth/login').flush({ token: TOKEN_ADMIN });
 
     expect(service.isAdmin()).toBe(true);
     expect(service.role()).toBe('admin');
@@ -73,7 +73,7 @@ describe('AuthService', () => {
 
   it('logout clears token from signal and localStorage', () => {
     service.login('user@test.com', '12345678').subscribe();
-    http.expectOne('https://localhost:62323/api/auth/login').flush({ token: TOKEN_USER });
+    http.expectOne('https://eventosvivos-api-q5jw.onrender.com/api/auth/login').flush({ token: TOKEN_USER });
 
     service.logout();
 
@@ -85,7 +85,7 @@ describe('AuthService', () => {
   it('register calls POST /auth/register without sending role', () => {
     service.register('nuevo@test.com', 'password123').subscribe();
 
-    const req = http.expectOne('https://localhost:62323/api/auth/register');
+    const req = http.expectOne('https://eventosvivos-api-q5jw.onrender.com/api/auth/register');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ email: 'nuevo@test.com', password: 'password123' });
     expect(req.request.body.role).toBeUndefined();

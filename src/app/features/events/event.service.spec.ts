@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { EventService } from './event.service';
 import { Event } from '../../core/models/event.model';
 
-const BASE = 'https://localhost:62323/api';
+const BASE = 'https://eventosvivos-api-q5jw.onrender.com/api';
 
 describe('EventService', () => {
   let service: EventService;

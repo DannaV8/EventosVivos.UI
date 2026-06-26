@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ReservationService } from './reservation.service';
 import { CreateReservationRequest } from '../../core/models/reservation.model';
 
-const BASE = 'https://localhost:62323/api';
+const BASE = 'https://eventosvivos-api-q5jw.onrender.com/api';
 
 describe('ReservationService', () => {
   let service: ReservationService;
