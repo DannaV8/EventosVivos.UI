@@ -41,8 +41,8 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
           </a>
         </div>
       } @else {
-        <div class="overflow-hidden rounded-xl border border-slate-800">
-          <table class="w-full text-sm">
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full min-w-[640px] text-sm">
             <thead>
               <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">
                 <th class="px-5 py-3 font-medium">Event</th>

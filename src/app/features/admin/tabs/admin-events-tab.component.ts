@@ -21,8 +21,8 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
           class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-500"
         >+ New event</button>
       </div>
-      <div class="overflow-hidden rounded-xl border border-slate-800">
-        <table class="w-full text-sm">
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full min-w-[720px] text-sm">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">
               <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('title')">

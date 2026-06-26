@@ -31,7 +31,7 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
         [ngModel]="search()"
         (ngModelChange)="search.set($event); page.set(0)"
         placeholder="Search by event or code..."
-        class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none w-72"
+        class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none sm:w-72"
       />
       <select
         [ngModel]="statusFilter()"
@@ -48,8 +48,8 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
     @if (loading()) {
       <app-spinner />
     } @else {
-      <div class="overflow-hidden rounded-xl border border-slate-800">
-        <table class="w-full text-sm">
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full min-w-[760px] text-sm">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">
               <th class="px-4 py-3 font-medium cursor-pointer select-none hover:text-white" (click)="setSort('eventTitle')">
