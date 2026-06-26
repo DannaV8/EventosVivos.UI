@@ -1,7 +1,8 @@
 # CLAUDE.md — EventosVivos UI (Angular + Tailwind)
 
-SPA for cultural event reservations. Consumes the REST API at `https://localhost:63801/api`.
-No SSR. Angular standalone components, signals, `@if`/`@for`, `inject()`.
+SPA for cultural event reservations. Consumes the REST API at `https://localhost:62323/api`
+(configured in `src/environments/environment.ts`). No SSR. Angular standalone components,
+signals, `@if`/`@for`, `inject()`, Reactive Forms.
 
 ## Structure
 
@@ -42,9 +43,11 @@ Anonymous clicking "Reserve" → redirected to `/login` with `returnUrl`. Return
 
 ## Implementation status
 
-- [x] Phase 1: core + auth + public event list
-- [ ] Phase 2: reservations (create, my-reservations, cancel)
-- [ ] Phase 3: admin dashboard
+- [x] Phase 1: core + auth + public event list (paginated, server-side)
+- [x] Phase 2: reservations (create, my-reservations, cancel)
+- [x] Phase 3: admin dashboard (reservations, events, reports, create-event tabs)
+
+Refactored June 2026 — see the per-area CLAUDE.md files for the patterns below.
 
 ## Architecture principles
 
@@ -63,6 +66,24 @@ Anonymous clicking "Reserve" → redirected to `/login` with `returnUrl`. Return
 
 **Template inline is fine for small/medium components** (Angular 17+ standard).
 Extract to a separate `.html` file only when the template exceeds ~100 lines and becomes hard to read.
+A large multi-purpose screen should be split into sub-components rather than growing one file
+(see `features/admin/` — a shell + one component per tab).
+
+**Reactive Forms everywhere** (not template-driven `[(ngModel)]`).
+`fb.nonNullable.group` + `Validators`; per-field errors shown when `dirty || touched`;
+`getRawValue()` on submit. Use an `invalid(name)` helper for the touched-and-invalid check.
+
+**Errors: one helper, two surfaces.**
+- Message extraction: `apiErrorMessage(err, fallback)` from `core/http-error.ts`. Never inline `err?.error?.detail`.
+- Surface: actions (confirm/cancel/etc.) → `ToastService`; forms → inline red banner signal. No native `alert()`.
+
+**Delayed navigation:** `timer(ms).pipe(takeUntilDestroyed(destroyRef))`, never `setTimeout`.
+
+**Pagination:** the shared `<app-paginator>` (zero-based). Public event list paginates server-side; admin tables paginate client-side (low volume).
+
+**Presentational/shared components are `OnPush`** and signal-driven.
+
+**Fetch one event with `EventService.getById(id)`** (`GET /api/events/{id}`), never by loading the full list.
 
 ## Hard rules
 

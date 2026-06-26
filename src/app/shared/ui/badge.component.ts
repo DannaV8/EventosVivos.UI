@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { EventType, EventStatus } from '../../core/models/event.model';
 
 type BadgeVariant = EventType | EventStatus | string;
@@ -15,19 +15,20 @@ const COLOR_MAP: Record<string, string> = {
 };
 
 const LABEL_MAP: Record<string, string> = {
-  Active: 'Activo',
-  Cancelled: 'Cancelado',
-  Completed: 'Completado',
-  Confirmed: 'Confirmada',
-  Conference: 'Conferencia',
-  Workshop: 'Taller',
-  Concert: 'Concierto',
-  PendingPayment: 'Pendiente de pago',
+  Active: 'Active',
+  Cancelled: 'Cancelled',
+  Completed: 'Completed',
+  Confirmed: 'Confirmed',
+  Conference: 'Conference',
+  Workshop: 'Workshop',
+  Concert: 'Concert',
+  PendingPayment: 'Pending payment',
 };
 
 @Component({
   selector: 'app-badge',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset {{ colorClass() }}">
       {{ displayLabel() }}

@@ -15,7 +15,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(request).pipe(
     catchError((err) => {
       if (err.status === 401 && token) {
-        // Solo cerrar sesión si enviamos un token y el servidor lo rechazó (expirado/inválido)
+        // Only sign out if we sent a token and the server rejected it (expired/invalid)
         auth.logout();
       }
       return throwError(() => err);

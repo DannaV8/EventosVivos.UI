@@ -9,6 +9,16 @@ Reusable UI components. No business logic or HTTP calls.
 | `ui/badge.component.ts` | `<app-badge>` | Type/status badge. Input: `label` (string). Auto-colors by value. |
 | `ui/spinner.component.ts` | `<app-spinner>` | Centered loading spinner. No inputs. |
 | `ui/toast.component.ts` | `<app-toast>` | Toast notifications. Driven by `ToastService`. |
+| `ui/select-filter.component.ts` | `<app-select-filter>` | Custom dropdown (replaces native `<select>`, which Tailwind can't style on Windows). Inputs: `placeholder`, `options` (`{value,label}[]`), `value`. Output: `valueChange`. ARIA listbox + Escape-to-close. |
+| `ui/paginator.component.ts` | `<app-paginator>` | Zero-based pager. Inputs: `page`, `totalPages`. Output: `pageChange`. Self-hides when `totalPages <= 1`. |
+
+All shared components use `ChangeDetectionStrategy.OnPush` (they are pure / signal-driven).
+
+## Services
+
+| Service | Usage |
+|---|---|
+| `services/toast.service.ts` | `ToastService.show(message, type, durationMs?)` / `dismiss()`. Single active toast via signal. Use for action feedback (confirm/cancel/create). |
 
 ## Badge colors
 

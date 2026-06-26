@@ -1,31 +1,63 @@
 # CLAUDE.md — features/admin/
 
-Admin panel. All routes require `adminGuard`.
+Admin panel. The `/admin` route requires `adminGuard`. **Done** (refactored June 2026).
 
-## Files
+## Structure
 
-| File | Route | Status |
-|---|---|---|
-| `admin-layout.component.ts` | `/admin` | Stub (Phase 3) |
-| `reservation-management.component.ts` | `/admin/reservations` | Pending Phase 3 |
-| `create-event.component.ts` | `/admin/events/new` | Pending Phase 3 |
-| `reports.component.ts` | `/admin/reports` | Pending Phase 3 |
+`admin-layout.component.ts` is a thin **shell** (~63 lines): renders the header + tab
+nav and switches between four self-contained tab components. It holds no table/form
+logic itself.
+
+```
+features/admin/
+├── admin-layout.component.ts          ← shell: tab state + coordination only
+├── admin.service.ts                   ← AdminService: all admin-only HTTP
+└── tabs/
+    ├── admin-reservations-tab.component.ts   ← list, search, status filter, confirm/cancel, metrics
+    ├── admin-events-tab.component.ts          ← events table; reloads via [refreshKey] input
+    ├── admin-reports-tab.component.ts         ← occupancy report + aggregate summary
+    └── admin-create-event-tab.component.ts    ← reactive create-event form
+```
+
+## How the tabs coordinate (via the shell)
+
+- Each tab loads its own data on init. They do **not** share state.
+- **Create → Events refresh:** the shell holds `eventsRefreshKey = signal(0)`. The create
+  tab emits `(created)`; the shell bumps the key and switches to the events tab. The events
+  tab has a `refreshKey` input + an `effect()` that reloads when it changes.
+- The create tab also emits `(cancelled)` → shell switches back to the events tab.
+- The events tab emits `(createRequested)` (its "+ New event" button) → shell opens the create tab.
+
+## AdminService
+
+All admin-only HTTP lives here — **never inject `HttpClient` into a tab component**.
+
+```
+confirmReservation(id)  → PUT /api/reservations/{id}/confirm  → { reservationCode }
+createEvent(req)        → POST /api/events                    → { id }
+```
 
 ## Admin-only endpoints
 
 ```
 POST /api/events                         → { id }              create event
 PUT  /api/reservations/{id}/confirm      → { reservationCode }
-PUT  /api/reservations/{id}/cancel       → 204
+PUT  /api/reservations/{id}/cancel       → 200
 GET  /api/events/{id}/report             → occupancy report
+GET  /api/reservations                   → returns ALL reservations when caller is admin
 ```
 
-## Pending API change
+`GET /api/reservations` already returns all reservations for admins (backend checks
+`User.IsInRole("admin")`), so the reservations tab calls the same `ReservationService.myReservations()`.
 
-`GET /api/reservations` currently returns only the logged-in user's reservations.
-The admin dashboard needs ALL reservations. The handler must be updated to return
-all when the caller has `role: admin` (or a new `GET /api/admin/reservations` endpoint created).
-**Do not implement Phase 3 until this backend change is in place.**
+## Patterns used here
+
+- **Reactive Forms** in the create tab (`fb.nonNullable.group` + `Validators`, incl. a
+  cross-field `endAfterStart` validator). Errors show per-field when `dirty || touched`.
+- **Errors:** confirm/cancel failures use `ToastService` (toast); the create form uses an
+  inline red banner signal. Message via `apiErrorMessage(err, fallback)` from `core/http-error.ts`.
+- **Delayed nav/reset** uses `timer(ms).pipe(takeUntilDestroyed(destroyRef))`, never `setTimeout`.
+- **Pagination** uses `<app-paginator>` (client-side, 8 rows/page; admin volume is low).
 
 ## Create event — form fields
 
@@ -33,16 +65,16 @@ all when the caller has `role: admin` (or a new `GET /api/admin/reservations` en
 {
   title: string
   description: string
-  venueId: 1 | 2 | 3           // Auditorio Central / Sala Norte / Arena Sur
-  maxCapacity: number
-  startDateTime: string         // ISO UTC with Z
-  endDateTime: string           // ISO UTC with Z
-  ticketPrice: number
   type: 'Conference' | 'Workshop' | 'Concert'
+  venueId: 1 | 2 | 3            // Central Auditorium / North Hall / South Arena
+  maxCapacity: number          // >= 1
+  ticketPrice: number          // >= 0
+  startDateTime: string        // datetime-local → converted to ISO UTC on submit
+  endDateTime: string          // must be after start (endAfterStart validator)
 }
 ```
 
 ## Dashboard layout
 
-Header with tabs: **Events** | **Reservations** | **Reports**
-Metrics: Confirmed · Pending · Available · Total Revenue
+Header tabs: **Reservations** | **Events** | **Reports** | **+ Create event**
+Reservations metrics: Confirmed · Pending payment · Cancelled · Total reservations

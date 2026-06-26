@@ -8,9 +8,9 @@ export const EVENT_TYPE_MAP: Record<number, EventType> = {
 };
 
 export const VENUE_MAP: Record<number, string> = {
-  1: 'Auditorio Central',
-  2: 'Sala Norte',
-  3: 'Arena Sur',
+  1: 'Central Auditorium',
+  2: 'North Hall',
+  3: 'South Arena',
 };
 
 export interface Event {
@@ -36,4 +36,21 @@ export interface EventFilters {
   status?: EventStatus;
   startDate?: string;
   endDate?: string;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface EventOccupancy {
+  eventId: string;
+  title: string;
+  soldTickets: number;
+  availableTickets: number;
+  occupancyPercentage: number;
+  totalRevenue: number;
+  status: EventStatus;
 }

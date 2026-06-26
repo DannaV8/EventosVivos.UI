@@ -8,11 +8,12 @@ import { Event, EventFilters, EventType, EventStatus, VENUE_MAP } from '../../co
 import { BadgeComponent } from '../../shared/ui/badge.component';
 import { SpinnerComponent } from '../../shared/ui/spinner.component';
 import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
+import { PaginatorComponent } from '../../shared/ui/paginator.component';
 
 @Component({
   selector: 'app-event-list',
   standalone: true,
-  imports: [FormsModule, RouterLink, BadgeComponent, SpinnerComponent, DatePipe, SelectFilterComponent],
+  imports: [FormsModule, RouterLink, BadgeComponent, SpinnerComponent, DatePipe, SelectFilterComponent, PaginatorComponent],
   template: `
     <header class="border-b border-slate-800 bg-slate-900 px-4 py-3">
       <div class="mx-auto flex max-w-7xl items-center justify-between gap-2">
@@ -21,19 +22,19 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
           @if (auth.isAuthenticated()) {
             @if (auth.isAdmin()) {
               <a routerLink="/admin" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500">
-                Panel Admin
+                Admin Panel
               </a>
             } @else {
               <a routerLink="/my-reservations" class="text-sm text-slate-300 hover:text-white">
-                Mis reservas
+                My reservations
               </a>
             }
             <button (click)="auth.logout()" class="text-sm text-slate-400 hover:text-white">
-              Cerrar sesión
+              Sign out
             </button>
           } @else {
             <a routerLink="/login" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500 whitespace-nowrap">
-              Iniciar sesión
+              Sign in
             </a>
           }
         </div>
@@ -48,12 +49,12 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 [&>*]:min-w-0">
           <div class="col-span-2 lg:col-span-1 flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 focus-within:border-indigo-500">
             <svg class="h-4 w-4 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" placeholder="Buscar evento..." [(ngModel)]="filters.title"
+            <input type="text" placeholder="Search event..." [(ngModel)]="filters.title"
               class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none" />
           </div>
 
           <app-select-filter
-            placeholder="Tipo: todos"
+            placeholder="Type: all"
             [options]="typeOptions"
             [value]="filters.type ?? ''"
             (valueChange)="setType($event)">
@@ -61,7 +62,7 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
           </app-select-filter>
 
           <app-select-filter
-            placeholder="Lugar: todos"
+            placeholder="Venue: all"
             [options]="venueOptions"
             [value]="filters.venueId ? filters.venueId.toString() : ''"
             (valueChange)="setVenue($event)">
@@ -69,7 +70,7 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
           </app-select-filter>
 
           <app-select-filter
-            placeholder="Estado: todos"
+            placeholder="Status: all"
             [options]="statusOptions"
             [value]="filters.status ?? ''"
             (valueChange)="setStatus($event)">
@@ -81,25 +82,25 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 [&>*]:min-w-0">
           <div class="flex items-center gap-1.5 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 focus-within:border-indigo-500">
             <svg class="h-4 w-4 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span class="text-xs text-slate-500 shrink-0">Desde</span>
+            <span class="text-xs text-slate-500 shrink-0">From</span>
             <input type="date" [(ngModel)]="filters.startDate"
               class="min-w-0 flex-1 bg-transparent text-xs text-slate-300 focus:outline-none focus:text-white" />
           </div>
 
           <div class="flex items-center gap-1.5 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 focus-within:border-indigo-500">
             <svg class="h-4 w-4 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span class="text-xs text-slate-500 shrink-0">Hasta</span>
+            <span class="text-xs text-slate-500 shrink-0">To</span>
             <input type="date" [(ngModel)]="filters.endDate"
               class="min-w-0 flex-1 bg-transparent text-xs text-slate-300 focus:outline-none focus:text-white" />
           </div>
 
           <button (click)="search()"
             class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors">
-            Buscar
+            Search
           </button>
           <button (click)="clear()"
             class="rounded-xl border border-slate-700 px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-slate-600 transition-colors">
-            Limpiar filtros
+            Clear filters
           </button>
         </div>
       </div>
@@ -110,11 +111,11 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
         <div class="rounded-xl border border-red-900 bg-red-950 p-6 text-center text-red-400">
           {{ error() }}
         </div>
-      } @else if (paginatedEvents().length === 0) {
-        <div class="py-16 text-center text-slate-500">No se encontraron eventos.</div>
+      } @else if (events().length === 0) {
+        <div class="py-16 text-center text-slate-500">No events found.</div>
       } @else {
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          @for (event of paginatedEvents(); track event.id) {
+          @for (event of events(); track event.id) {
             <div class="flex flex-col rounded-xl border border-slate-800 bg-slate-900 overflow-hidden hover:border-slate-700 transition-colors">
               <div class="h-40 bg-gradient-to-br from-slate-800 to-slate-700 flex items-center justify-center">
                 <span class="text-4xl">{{ typeIcon(event) }}</span>
@@ -129,7 +130,7 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
                   <p>📍 {{ event.venueName }}</p>
                   <p>📅 {{ event.startDateTime | date:'dd/MM/yyyy HH:mm' }} UTC</p>
                   <p>💶 &#36;{{ event.ticketPrice }}</p>
-                  <p>🎟️ {{ eventService.availableTickets(event) }} / {{ event.maxCapacity }} disponibles</p>
+                  <p>🎟️ {{ eventService.availableTickets(event) }} / {{ event.maxCapacity }} available</p>
                 </div>
                 <div class="mt-auto pt-2">
                   @if (event.status === 'Active') {
@@ -137,11 +138,11 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
                       (click)="book(event)"
                       class="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
                     >
-                      Reservar
+                      Reserve
                     </button>
                   } @else {
                     <button disabled class="w-full rounded-lg bg-slate-700 py-2 text-sm font-medium text-slate-500 cursor-not-allowed">
-                      No disponible
+                      Unavailable
                     </button>
                   }
                 </div>
@@ -150,27 +151,7 @@ import { SelectFilterComponent } from '../../shared/ui/select-filter.component';
           }
         </div>
 
-        @if (totalPages() > 1) {
-          <div class="mt-8 flex justify-center gap-2">
-            <button
-              (click)="page.set(page() - 1)"
-              [disabled]="page() === 0"
-              class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 disabled:opacity-40 hover:border-slate-600"
-            >
-              ← Anterior
-            </button>
-            <span class="flex items-center px-4 text-sm text-slate-400">
-              {{ page() + 1 }} / {{ totalPages() }}
-            </span>
-            <button
-              (click)="page.set(page() + 1)"
-              [disabled]="page() === totalPages() - 1"
-              class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 disabled:opacity-40 hover:border-slate-600"
-            >
-              Siguiente →
-            </button>
-          </div>
-        }
+        <app-paginator [page]="page()" [totalPages]="totalPages()" (pageChange)="goTo($event)" />
       }
     </main>
   `,
@@ -183,33 +164,29 @@ export class EventListComponent implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly events = signal<Event[]>([]);
+  readonly totalCount = signal(0);
   readonly page = signal(0);
   readonly perPage = 9;
 
   filters: EventFilters = {};
 
   readonly typeOptions = [
-    { value: 'Conference', label: 'Conferencia' },
-    { value: 'Workshop',   label: 'Taller' },
-    { value: 'Concert',    label: 'Concierto' },
+    { value: 'Conference', label: 'Conference' },
+    { value: 'Workshop',   label: 'Workshop' },
+    { value: 'Concert',    label: 'Concert' },
   ];
   readonly venueOptions = [
-    { value: '1', label: 'Auditorio Central' },
-    { value: '2', label: 'Sala Norte' },
-    { value: '3', label: 'Arena Sur' },
+    { value: '1', label: 'Central Auditorium' },
+    { value: '2', label: 'North Hall' },
+    { value: '3', label: 'South Arena' },
   ];
   readonly statusOptions = [
-    { value: 'Active',    label: 'Activo' },
-    { value: 'Cancelled', label: 'Cancelado' },
-    { value: 'Completed', label: 'Completado' },
+    { value: 'Active',    label: 'Active' },
+    { value: 'Cancelled', label: 'Cancelled' },
+    { value: 'Completed', label: 'Completed' },
   ];
 
-  readonly totalPages = computed(() => Math.ceil(this.events().length / this.perPage));
-
-  readonly paginatedEvents = computed(() => {
-    const start = this.page() * this.perPage;
-    return this.events().slice(start, start + this.perPage);
-  });
+  readonly totalPages = computed(() => Math.ceil(this.totalCount() / this.perPage));
 
   ngOnInit() {
     this.search();
@@ -228,20 +205,34 @@ export class EventListComponent implements OnInit {
   setVenue(v: string)  { this.filters = { ...this.filters, venueId: v ? +v : undefined }; }
   setStatus(v: string) { this.filters = { ...this.filters, status: (v as EventStatus) || undefined }; }
 
+  /** Reinicia a la primera página y carga (al buscar o cambiar filtros). */
   search() {
+    this.page.set(0);
+    this.load();
+  }
+
+  /** Carga la página actual desde la API. */
+  load() {
     this.loading.set(true);
     this.error.set(null);
-    this.page.set(0);
-    this.eventService.list(this.filters).subscribe({
-      next: (data) => {
-        this.events.set(data);
+    // El componente usa páginas base 0; la API base 1.
+    this.eventService.list(this.filters, this.page() + 1, this.perPage).subscribe({
+      next: (result) => {
+        this.events.set(result.items);
+        this.totalCount.set(result.totalCount);
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No se pudieron cargar los eventos. Verifica que la API esté corriendo.');
+        this.error.set('Could not load events. Make sure the API is running.');
         this.loading.set(false);
       },
     });
+  }
+
+  goTo(page: number) {
+    if (page < 0 || page >= this.totalPages()) return;
+    this.page.set(page);
+    this.load();
   }
 
   clear() {

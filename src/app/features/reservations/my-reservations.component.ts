@@ -3,6 +3,8 @@ import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ReservationService } from './reservation.service';
 import { AuthService } from '../../core/auth.service';
+import { ToastService } from '../../shared/services/toast.service';
+import { apiErrorMessage } from '../../core/http-error';
 import { Reservation } from '../../core/models/reservation.model';
 import { BadgeComponent } from '../../shared/ui/badge.component';
 import { SpinnerComponent } from '../../shared/ui/spinner.component';
@@ -14,11 +16,11 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
   template: `
     <header class="border-b border-slate-800 bg-slate-900 px-6 py-4">
       <div class="mx-auto flex max-w-5xl items-center justify-between">
-        <h1 class="text-xl font-bold text-white">Mis reservas</h1>
+        <h1 class="text-xl font-bold text-white">My reservations</h1>
         <div class="flex items-center gap-4">
-          <a routerLink="/" class="text-sm text-slate-400 hover:text-white">← Eventos</a>
+          <a routerLink="/" class="text-sm text-slate-400 hover:text-white">← Events</a>
           <button (click)="auth.logout()" class="text-sm text-slate-400 hover:text-white">
-            Cerrar sesión
+            Sign out
           </button>
         </div>
       </div>
@@ -33,9 +35,9 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
         </div>
       } @else if (reservations().length === 0) {
         <div class="py-20 text-center">
-          <p class="text-slate-400">No tienes reservas aún.</p>
+          <p class="text-slate-400">You have no reservations yet.</p>
           <a routerLink="/" class="mt-4 inline-block rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-500">
-            Ver eventos
+            View events
           </a>
         </div>
       } @else {
@@ -43,11 +45,11 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">
-                <th class="px-5 py-3 font-medium">Evento</th>
-                <th class="px-5 py-3 font-medium">Fecha reserva</th>
-                <th class="px-5 py-3 font-medium">Cant.</th>
-                <th class="px-5 py-3 font-medium">Estado</th>
-                <th class="px-5 py-3 font-medium">Código</th>
+                <th class="px-5 py-3 font-medium">Event</th>
+                <th class="px-5 py-3 font-medium">Reserved on</th>
+                <th class="px-5 py-3 font-medium">Qty</th>
+                <th class="px-5 py-3 font-medium">Status</th>
+                <th class="px-5 py-3 font-medium">Code</th>
                 <th class="px-5 py-3 font-medium"></th>
               </tr>
             </thead>
@@ -76,7 +78,7 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
                         [disabled]="cancelling() === r.id"
                         class="rounded-md border border-red-800 px-3 py-1 text-xs font-medium text-red-400 hover:bg-red-950 disabled:opacity-50 transition-colors"
                       >
-                        {{ cancelling() === r.id ? 'Cancelando...' : 'Cancelar' }}
+                        {{ cancelling() === r.id ? 'Cancelling...' : 'Cancel' }}
                       </button>
                     }
                   </td>
@@ -92,6 +94,7 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
 export class MyReservationsComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly reservationService = inject(ReservationService);
+  private readonly toast = inject(ToastService);
 
   readonly reservations = signal<Reservation[]>([]);
   readonly loading = signal(true);
@@ -110,14 +113,14 @@ export class MyReservationsComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No se pudieron cargar tus reservas.');
+        this.error.set('Could not load your reservations.');
         this.loading.set(false);
       },
     });
   }
 
   cancel(r: Reservation) {
-    if (!confirm(`¿Cancelar la reserva de "${r.eventTitle}"?`)) return;
+    if (!confirm(`Cancel the reservation for "${r.eventTitle}"?`)) return;
 
     this.cancelling.set(r.id);
     this.reservationService.cancel(r.id).subscribe({
@@ -126,8 +129,7 @@ export class MyReservationsComponent implements OnInit {
         this.load();
       },
       error: (err) => {
-        const msg = err?.error?.detail ?? 'No se pudo cancelar la reserva.';
-        alert(msg);
+        this.toast.show(apiErrorMessage(err, 'Could not cancel the reservation.'), 'error');
         this.cancelling.set(null);
       },
     });

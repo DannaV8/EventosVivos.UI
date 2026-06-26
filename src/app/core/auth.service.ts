@@ -19,42 +19,26 @@ export class AuthService {
 
   readonly token = signal<string | null>(localStorage.getItem('token'));
 
-  readonly isAuthenticated = computed(() => this.token() !== null);
-
-  readonly role = computed<string | null>(() => {
+  /** Decodes the JWT payload once; all claim accessors derive from this. */
+  private readonly payload = computed<JwtPayload | null>(() => {
     const t = this.token();
     if (!t) return null;
     try {
-      const payload: JwtPayload = JSON.parse(atob(t.split('.')[1]));
-      return payload.role ?? null;
+      return JSON.parse(atob(t.split('.')[1])) as JwtPayload;
     } catch {
       return null;
     }
   });
+
+  readonly isAuthenticated = computed(() => this.token() !== null);
+
+  readonly role = computed<string | null>(() => this.payload()?.role ?? null);
 
   readonly isAdmin = computed(() => this.role() === 'admin');
 
-  readonly userId = computed<string | null>(() => {
-    const t = this.token();
-    if (!t) return null;
-    try {
-      const payload: JwtPayload = JSON.parse(atob(t.split('.')[1]));
-      return payload.sub ?? null;
-    } catch {
-      return null;
-    }
-  });
+  readonly userId = computed<string | null>(() => this.payload()?.sub ?? null);
 
-  readonly email = computed<string | null>(() => {
-    const t = this.token();
-    if (!t) return null;
-    try {
-      const payload: JwtPayload = JSON.parse(atob(t.split('.')[1]));
-      return payload.email ?? null;
-    } catch {
-      return null;
-    }
-  });
+  readonly email = computed<string | null>(() => this.payload()?.email ?? null);
 
   login(email: string, password: string) {
     return this.http

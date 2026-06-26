@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, HostListener, ElementRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal, computed, HostListener, ElementRef, inject } from '@angular/core';
 
 export interface SelectOption {
   value: string;
@@ -9,12 +9,16 @@ export interface SelectOption {
   selector: 'app-select-filter',
   standalone: true,
   host: { class: 'block w-full' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="relative w-full">
       <button
         type="button"
         (click)="toggle()"
-        class="w-full flex items-center gap-2 overflow-hidden rounded-xl border px-3 py-2.5 text-sm transition-colors focus:outline-none"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="open()"
+        [attr.aria-label]="selectedLabel()"
+        class="w-full flex items-center gap-2 overflow-hidden rounded-xl border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:border-indigo-500"
         [class]="open()
           ? 'border-indigo-500 bg-slate-800 text-white'
           : selected()
@@ -30,9 +34,11 @@ export interface SelectOption {
       </button>
 
       @if (open()) {
-        <div class="absolute left-0 top-full z-50 mt-1 min-w-40 rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl">
+        <div role="listbox" class="absolute left-0 top-full z-50 mt-1 min-w-40 rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl">
           <button
             type="button"
+            role="option"
+            [attr.aria-selected]="!selected()"
             (click)="select('')"
             class="w-full px-4 py-2 text-left text-sm transition-colors"
             [class]="!selected() ? 'text-indigo-400 bg-slate-700' : 'text-slate-400 hover:bg-slate-700 hover:text-white'"
@@ -42,6 +48,8 @@ export interface SelectOption {
           @for (opt of options(); track opt.value) {
             <button
               type="button"
+              role="option"
+              [attr.aria-selected]="value() === opt.value"
               (click)="select(opt.value)"
               class="w-full px-4 py-2 text-left text-sm transition-colors"
               [class]="value() === opt.value ? 'text-indigo-400 bg-slate-700' : 'text-slate-300 hover:bg-slate-700 hover:text-white'"
@@ -57,7 +65,7 @@ export interface SelectOption {
 export class SelectFilterComponent {
   private readonly el = inject(ElementRef);
 
-  readonly placeholder = input<string>('Todos');
+  readonly placeholder = input<string>('All');
   readonly options = input.required<SelectOption[]>();
   readonly value = input<string>('');
   readonly valueChange = output<string>();
@@ -82,5 +90,10 @@ export class SelectFilterComponent {
     if (!this.el.nativeElement.contains(e.target)) {
       this.open.set(false);
     }
+  }
+
+  @HostListener('keydown.escape')
+  onEscape() {
+    this.open.set(false);
   }
 }

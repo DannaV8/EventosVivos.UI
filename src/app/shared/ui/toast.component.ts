@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-toast',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (toast.current(); as t) {
       <div
@@ -20,7 +21,7 @@ import { ToastService } from '../services/toast.service';
         <button
           (click)="toast.dismiss()"
           class="ml-2 text-current opacity-60 hover:opacity-100 leading-none text-base"
-          aria-label="Cerrar"
+          aria-label="Close"
         >×</button>
       </div>
     }
