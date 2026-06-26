@@ -72,5 +72,10 @@ Rutas protegidas por `authGuard` (usuario logueado) y `adminGuard` (rol admin).
 
 <img width="1634" height="951" alt="image" src="https://github.com/user-attachments/assets/2ecb8c16-5850-49a7-a9d5-d3888fcf713f" />
 
+## Unit test
+
+<img width="669" height="224" alt="image" src="https://github.com/user-attachments/assets/a2d36878-fe61-443f-b022-e0a2665f24a7" />
+
+
 
 
