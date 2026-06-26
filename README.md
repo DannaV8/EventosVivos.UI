@@ -48,3 +48,18 @@ src/app/
 ```
 
 Rutas protegidas por `authGuard` (usuario logueado) y `adminGuard` (rol admin).
+
+## Screenshoots
+
+<img width="1732" height="1353" alt="image" src="https://github.com/user-attachments/assets/cffe633a-cce0-4d0d-aa8a-11ec9b422d77" />
+
+<img width="1715" height="663" alt="image" src="https://github.com/user-attachments/assets/c03a2004-a4ab-49c6-91bb-36868ed44e42" />
+
+<img width="1737" height="761" alt="image" src="https://github.com/user-attachments/assets/bd315296-f4f3-411f-8220-4e19df64d5d5" />
+
+<img width="1539" height="809" alt="image" src="https://github.com/user-attachments/assets/be226104-fcc4-4e0a-b22a-0fe516632dc9" />
+
+<img width="1634" height="951" alt="image" src="https://github.com/user-attachments/assets/2ecb8c16-5850-49a7-a9d5-d3888fcf713f" />
+
+
+
