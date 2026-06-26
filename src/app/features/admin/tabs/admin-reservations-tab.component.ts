@@ -27,14 +27,14 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
     <div class="mb-4 flex flex-wrap gap-3">
       <input
         type="text"
-        [(ngModel)]="search"
-        (ngModelChange)="page.set(0)"
-        placeholder="Search by buyer or code..."
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event); page.set(0)"
+        placeholder="Search by event or code..."
         class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none w-72"
       />
       <select
-        [(ngModel)]="statusFilter"
-        (ngModelChange)="page.set(0)"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event); page.set(0)"
         class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
       >
         <option value="">All statuses</option>
@@ -66,7 +66,7 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
                 <td class="px-4 py-3 text-slate-300">{{ r.quantity }}</td>
                 <td class="px-4 py-3"><app-badge [label]="r.status" /></td>
                 <td class="px-4 py-3 font-mono text-slate-400">{{ r.reservationCode ?? '—' }}</td>
-                <td class="px-4 py-3 text-slate-400">{{ r.createdAt | date:'dd/MM/yy HH:mm' }}</td>
+                <td class="px-4 py-3 text-slate-400">{{ r.creationDate | date:'dd/MM/yy HH:mm' }}</td>
                 <td class="px-4 py-3">
                   <div class="flex gap-2">
                     @if (r.status === 'PendingPayment') {
@@ -110,16 +110,17 @@ export class AdminReservationsTabComponent implements OnInit {
   readonly loading = signal(true);
   readonly processing = signal<string | null>(null);
 
-  search = '';
-  statusFilter = '';
+  readonly search = signal('');
+  readonly statusFilter = signal('');
 
   private readonly perPage = 8;
   readonly page = signal(0);
 
   readonly filtered = computed(() => {
-    const q = this.search.toLowerCase();
+    const q = this.search().toLowerCase();
+    const status = this.statusFilter();
     return this.reservations().filter((r) => {
-      const matchStatus = !this.statusFilter || r.status === this.statusFilter;
+      const matchStatus = !status || r.status === status;
       const matchSearch = !q ||
         r.eventTitle.toLowerCase().includes(q) ||
         (r.reservationCode ?? '').toLowerCase().includes(q);

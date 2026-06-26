@@ -57,7 +57,7 @@ import { SpinnerComponent } from '../../shared/ui/spinner.component';
               @for (r of reservations(); track r.id) {
                 <tr class="border-b border-slate-800 bg-slate-950 hover:bg-slate-900 transition-colors">
                   <td class="px-5 py-4 font-medium text-white">{{ r.eventTitle }}</td>
-                  <td class="px-5 py-4 text-slate-400">{{ r.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="px-5 py-4 text-slate-400">{{ r.creationDate | date:'dd/MM/yyyy HH:mm' }}</td>
                   <td class="px-5 py-4 text-slate-300">{{ r.quantity }}</td>
                   <td class="px-5 py-4">
                     <app-badge [label]="r.status" />

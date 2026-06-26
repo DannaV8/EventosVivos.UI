@@ -7,7 +7,7 @@ export interface Reservation {
   quantity: number;
   status: ReservationStatus;
   reservationCode: string | null;
-  createdAt: string;
+  creationDate: string;
 }
 
 export interface CreateReservationRequest {
