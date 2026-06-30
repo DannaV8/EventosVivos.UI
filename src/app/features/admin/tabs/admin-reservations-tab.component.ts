@@ -48,7 +48,46 @@ import { PaginatorComponent } from '../../../shared/ui/paginator.component';
     @if (loading()) {
       <app-spinner />
     } @else {
-      <div class="overflow-x-auto rounded-xl border border-slate-800">
+
+      <!-- Mobile: cards -->
+      <div class="flex flex-col gap-3 sm:hidden">
+        @for (r of paged(); track r.id) {
+          <div class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <p class="text-sm font-medium text-white leading-tight">{{ r.eventTitle }}</p>
+              <app-badge [label]="r.status" />
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
+              <span>Qty: <span class="text-slate-300">{{ r.quantity }}</span></span>
+              <span>{{ r.creationDate | date:'dd/MM/yy HH:mm' }}</span>
+              @if (r.reservationCode) {
+                <span class="font-mono">{{ r.reservationCode }}</span>
+              }
+            </div>
+            <div class="flex gap-2 pt-1">
+              @if (r.status === 'PendingPayment') {
+                <button
+                  (click)="confirmReservation(r)"
+                  [disabled]="processing() === r.id"
+                  class="rounded-md bg-emerald-700 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-50"
+                >{{ processing() === r.id ? '...' : 'Confirm' }}</button>
+              }
+              @if (r.status === 'Confirmed') {
+                <button
+                  (click)="cancelReservation(r)"
+                  [disabled]="processing() === r.id"
+                  class="rounded-md border border-red-800 px-3 py-1 text-xs font-medium text-red-400 hover:bg-red-950 disabled:opacity-50"
+                >Cancel</button>
+              }
+            </div>
+          </div>
+        } @empty {
+          <p class="py-10 text-center text-slate-500">No matching reservations.</p>
+        }
+      </div>
+
+      <!-- Desktop: tabla -->
+      <div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800">
         <table class="w-full min-w-[760px] text-sm">
           <thead>
             <tr class="border-b border-slate-800 bg-slate-900 text-left text-slate-400">

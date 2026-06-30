@@ -19,25 +19,27 @@ type Tab = 'reservations' | 'events' | 'reports' | 'create';
     AdminCreateEventTabComponent,
   ],
   template: `
-    <header class="border-b border-slate-800 bg-slate-900 px-6 py-4">
-      <div class="mx-auto flex max-w-7xl items-center justify-between">
-        <div class="flex items-center gap-6">
-          <h1 class="text-xl font-bold text-white">EventosVivos <span class="text-indigo-400">Admin</span></h1>
-          <nav class="flex gap-1">
-            @for (t of tabs; track t.id) {
-              <button
-                (click)="switchTab(t.id)"
-                [class]="tab() === t.id
-                  ? 'rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white'
-                  : 'rounded-md px-4 py-1.5 text-sm font-medium text-slate-400 hover:text-white'"
-              >{{ t.label }}</button>
-            }
-          </nav>
+    <header class="border-b border-slate-800 bg-slate-900 px-4 py-3">
+      <div class="mx-auto max-w-7xl space-y-3">
+        <!-- Fila 1: título + acciones -->
+        <div class="flex items-center justify-between">
+          <h1 class="text-base font-bold text-white sm:text-xl">EventosVivos <span class="text-indigo-400">Admin</span></h1>
+          <div class="flex items-center gap-3">
+            <a routerLink="/" class="text-xs text-slate-400 hover:text-white sm:text-sm">View site</a>
+            <button (click)="auth.logout()" class="text-xs text-slate-400 hover:text-white sm:text-sm">Sign out</button>
+          </div>
         </div>
-        <div class="flex items-center gap-4">
-          <a routerLink="/" class="text-sm text-slate-400 hover:text-white">View site</a>
-          <button (click)="auth.logout()" class="text-sm text-slate-400 hover:text-white">Sign out</button>
-        </div>
+        <!-- Fila 2: tabs scrollables en móvil -->
+        <nav class="flex gap-1 overflow-x-auto pb-1">
+          @for (t of tabs; track t.id) {
+            <button
+              (click)="switchTab(t.id)"
+              [class]="tab() === t.id
+                ? 'shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white sm:px-4 sm:text-sm'
+                : 'shrink-0 rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white sm:px-4 sm:text-sm'"
+            >{{ t.label }}</button>
+          }
+        </nav>
       </div>
     </header>
 

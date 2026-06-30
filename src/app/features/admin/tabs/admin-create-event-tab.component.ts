@@ -167,8 +167,8 @@ export class AdminCreateEventTabComponent {
       venueId: +v.venueId,
       maxCapacity: +v.maxCapacity,
       ticketPrice: +v.ticketPrice,
-      startDateTime: new Date(v.startDateTime).toISOString(),
-      endDateTime: new Date(v.endDateTime).toISOString(),
+      startDateTime: v.startDateTime,
+      endDateTime: v.endDateTime,
     };
 
     this.adminService.createEvent(body).subscribe({

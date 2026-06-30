@@ -128,17 +128,21 @@ import { PaginatorComponent } from '../../shared/ui/paginator.component';
                 <h3 class="font-semibold text-white leading-tight">{{ event.title }}</h3>
                 <div class="text-sm text-slate-400 space-y-1">
                   <p>📍 {{ event.venueName }}</p>
-                  <p>📅 {{ event.startDateTime | date:'dd/MM/yyyy HH:mm' }} UTC</p>
+                  <p>📅 {{ event.startDateTime | date:'dd/MM/yyyy HH:mm' }} → {{ event.endDateTime | date:'dd/MM/yyyy HH:mm' }} UTC</p>
                   <p>💶 &#36;{{ event.ticketPrice }}</p>
                   <p>🎟️ {{ eventService.availableTickets(event) }} / {{ event.maxCapacity }} available</p>
                 </div>
                 <div class="mt-auto pt-2">
-                  @if (event.status === 'Active') {
+                  @if (event.status === 'Active' && eventService.availableTickets(event) > 0) {
                     <button
                       (click)="book(event)"
                       class="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
                     >
                       Reserve
+                    </button>
+                  } @else if (event.status === 'Active') {
+                    <button disabled class="w-full rounded-lg bg-slate-700 py-2 text-sm font-medium text-slate-500 cursor-not-allowed">
+                      Sold out
                     </button>
                   } @else {
                     <button disabled class="w-full rounded-lg bg-slate-700 py-2 text-sm font-medium text-slate-500 cursor-not-allowed">

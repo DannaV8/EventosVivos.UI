@@ -9,7 +9,7 @@ export class EventService {
   private readonly base = environment.apiBase;
 
   availableTickets(event: Event): number {
-    return event.maxCapacity - (event.confirmedTickets ?? 0) - (event.lostTickets ?? 0);
+    return Math.max(0, event.maxCapacity - (event.confirmedTickets ?? 0) - (event.lostTickets ?? 0));
   }
 
   list(filters: EventFilters = {}, page = 1, pageSize = 9) {
@@ -19,7 +19,7 @@ export class EventService {
     if (filters.venueId) params = params.set('venueId', String(filters.venueId));
     if (filters.status) params = params.set('status', filters.status);
     if (filters.startDate) params = params.set('startDate', filters.startDate);
-    if (filters.endDate) params = params.set('endDate', filters.endDate);
+    if (filters.endDate) params = params.set('endDate', `${filters.endDate}T23:59:59`);
     params = params.set('page', String(page));
     params = params.set('pageSize', String(pageSize));
 
@@ -32,5 +32,9 @@ export class EventService {
 
   report(eventId: string) {
     return this.http.get<EventOccupancy>(`${this.base}/events/${eventId}/report`);
+  }
+
+  listReports() {
+    return this.http.get<EventOccupancy[]>(`${this.base}/events/reports`);
   }
 }

@@ -31,12 +31,12 @@ describe('authGuard', () => {
 
   afterEach(() => localStorage.clear());
 
-  it('permite el paso cuando hay token', () => {
+  it('allows access when token is present', () => {
     auth.token.set(TOKEN_USER);
     expect(runGuard()).toBe(true);
   });
 
-  it('redirige a /login con returnUrl cuando no hay token', () => {
+  it('redirects to /login with returnUrl when there is no token', () => {
     auth.token.set(null);
     const result = runGuard() as UrlTree;
     expect(result).toBeInstanceOf(UrlTree);

@@ -28,19 +28,19 @@ describe('adminGuard', () => {
 
   afterEach(() => localStorage.clear());
 
-  it('permite el paso con token de admin', () => {
+  it('allows access with an admin token', () => {
     auth.token.set(TOKEN_ADMIN);
     expect(runGuard()).toBe(true);
   });
 
-  it('redirige a / con token de user normal', () => {
+  it('redirects to / with a regular user token', () => {
     auth.token.set(TOKEN_USER);
     const result = runGuard() as UrlTree;
     expect(result).toBeInstanceOf(UrlTree);
     expect(result.toString()).toBe('/');
   });
 
-  it('redirige a / sin token', () => {
+  it('redirects to / when there is no token', () => {
     auth.token.set(null);
     const result = runGuard() as UrlTree;
     expect(result).toBeInstanceOf(UrlTree);

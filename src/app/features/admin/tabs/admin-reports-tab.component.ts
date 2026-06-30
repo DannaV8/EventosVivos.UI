@@ -5,7 +5,6 @@ import { sortBy, SortDir } from '../../../core/sort';
 import { BadgeComponent } from '../../../shared/ui/badge.component';
 import { SpinnerComponent } from '../../../shared/ui/spinner.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator.component';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-admin-reports-tab',
@@ -124,14 +123,8 @@ export class AdminReportsTabComponent implements OnInit {
 
   load() {
     this.loading.set(true);
-    this.eventService.list({}, 1, 1000).subscribe({
-      next: (data) => {
-        if (data.items.length === 0) { this.reports.set([]); this.loading.set(false); return; }
-        forkJoin(data.items.map((e) => this.eventService.report(e.id))).subscribe({
-          next: (occupancies) => { this.reports.set(occupancies); this.page.set(0); this.loading.set(false); },
-          error: () => this.loading.set(false),
-        });
-      },
+    this.eventService.listReports().subscribe({
+      next: (data) => { this.reports.set(data); this.page.set(0); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
   }
